@@ -5,9 +5,9 @@ The following things should be done:
 - check if the year is in range 1886-2014
 - convert the value of the field to be just a year (not full datetime)
 - the rest of the fields and values should stay the same
-- if the value of the field is a valid year in range, as described above,
+- if the value of the field is a valid year in the range as described above,
   write that line to the output_good file
-- if the value of the field is not a valid year, 
+- if the value of the field is not a valid year as described above, 
   write that line to the output_bad file
 - discard rows (neither write to good nor bad) if the URI is not from dbpedia.org
 - you should use the provided way of reading and writing data (DictReader and DictWriter)
@@ -22,24 +22,48 @@ import pprint
 INPUT_FILE = 'autos.csv'
 OUTPUT_GOOD = 'autos-valid.csv'
 OUTPUT_BAD = 'FIXME-autos.csv'
+YEAR_FIELD = 'productionStartYear'
+
 
 def process_file(input_file, output_good, output_bad):
+    data_good = []
+    data_bad = []
 
     with open(input_file, "r") as f:
         reader = csv.DictReader(f)
         header = reader.fieldnames
 
-        #COMPLETE THIS FUNCTION
+        for row in reader:
+            if row['URI'][:18] != "http://dbpedia.org":
+                continue
+
+            year = good_year(row[YEAR_FIELD])
+            if year:
+                row[YEAR_FIELD] = year
+                data_good.append(row)
+            else:
+                data_bad.append(row)
+
+        # This is just an example on how you can use csv.DictWriter
+        # Remember that you have to output 2 files
+        with open(output_good, "w") as g:
+            writer = csv.DictWriter(g, delimiter=",", fieldnames=header)
+            writer.writeheader()
+            writer.writerows(data_good)
+
+        with open(output_bad, "w") as b:
+            writer = csv.DictWriter(b, delimiter=",", fieldnames=header)
+            writer.writeheader()
+            writer.writerows(data_bad)
 
 
+def good_year(date):
+    year = date[:4]
+    if year.isdigit():
+        if int(year) > 1886 and int(year) < 2014:
+            return year
 
-    # This is just an example on how you can use csv.DictWriter
-    # Remember that you have to output 2 files
-    with open(output_good, "w") as g:
-        writer = csv.DictWriter(g, delimiter=",", fieldnames= header)
-        writer.writeheader()
-        for row in YOURDATA:
-            writer.writerow(row)
+    return False
 
 
 def test():
