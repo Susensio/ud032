@@ -23,10 +23,23 @@ import pprint
 CITIES = 'cities.csv'
 
 
-def check_loc(point, lat, longi):
-    # YOUR CODE HERE
-    
-    pass
+def check_loc(point, lat, lon):
+    threshold = 0.00001
+    coord = point.split()
+    try:
+        coord = [float(c) for c in coord]
+        lat, lon = float(lat), float(lon)
+        print coord, lat, lon
+    except ValueError:
+        return False
+    else:
+        return similar_values(coord[0], lat, threshold) and similar_values(coord[1], lon, threshold)
+
+
+def similar_values(value1, value2, threshold):
+    dif = abs(value1 - value2)
+    return dif < threshold
+
 
 
 def process_file(filename):
