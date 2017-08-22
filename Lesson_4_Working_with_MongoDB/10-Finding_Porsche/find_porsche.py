@@ -31,8 +31,12 @@ def find_porsche(db, query):
 
 
 if __name__ == "__main__":
-
+    # For local use
     db = get_db('examples')
     query = porsche_query()
-    p = find_porsche(db, query)
+    results = find_porsche(db, query)
+
+    print "Printing first 3 results\n"
     import pprint
+    for car in results[:3]:
+        pprint.pprint(car)
