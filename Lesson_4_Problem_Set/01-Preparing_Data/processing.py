@@ -39,64 +39,98 @@ import pprint
 import re
 
 DATAFILE = 'arachnid.csv'
-FIELDS ={'rdf-schema#label': 'label',
-         'URI': 'uri',
-         'rdf-schema#comment': 'description',
-         'synonym': 'synonym',
-         'name': 'name',
-         'family_label': 'family',
-         'class_label': 'class',
-         'phylum_label': 'phylum',
-         'order_label': 'order',
-         'kingdom_label': 'kingdom',
-         'genus_label': 'genus'}
+FIELDS = {'rdf-schema#label': 'label',
+          'URI': 'uri',
+          'rdf-schema#comment': 'description',
+          'synonym': 'synonym',
+          'name': 'name',
+          'family_label': 'family',
+          'class_label': 'class',
+          'phylum_label': 'phylum',
+          'order_label': 'order',
+          'kingdom_label': 'kingdom',
+          'genus_label': 'genus'}
 
 
 def process_file(filename, fields):
 
-    process_fields = fields.keys()
-    data = []
-    with open(filename, "r") as f:
-        reader = csv.DictReader(f)
-        for i in range(3):
-            l = reader.next()
+  process_fields = fields.keys()
+  data = []
+  with open(filename, "r") as f:
+    reader = csv.DictReader(f)
+    for i in range(3):
+      reader.next()
 
-        for line in reader:
-            # YOUR CODE HERE
-            pass
-    return data
+    for line in reader:
+      spider = {}
+      classification = {}
+      for field, val in line.iteritems():
+        if field not in process_fields:
+          continue
+        if empty_val(val):
+          val = None
+        else:
+          val = val.strip()
+        if field == 'rdf-schema#label':
+          val = trim_parenthesis(val)
+        if field == 'name':
+          if val is None or not re.match('^[\w]*$', val):
+            val = spider['label']
+        if field == 'synonym' and val is not None:
+          val = parse_array(val)
+
+        if field in ['family_label', 'class_label', 'phylum_label', 'order_label', 'kingdom_label', 'genus_label']:
+          classification[FIELDS[field]] = val
+        else:
+          spider[FIELDS[field]] = val
+
+      spider['classification'] = classification
+
+      data.append(spider)
+  return data
+
+
+def empty_val(val):
+  val = val.strip()
+  return (val == "NULL") or (val == "")
+
+
+def trim_parenthesis(text):
+  if '(' in text:
+    text = re.search('[^(]*', text).group().strip()
+  return text
 
 
 def parse_array(v):
-    if (v[0] == "{") and (v[-1] == "}"):
-        v = v.lstrip("{")
-        v = v.rstrip("}")
-        v_array = v.split("|")
-        v_array = [i.strip() for i in v_array]
-        return v_array
-    return [v]
+  if (v[0] == "{") and (v[-1] == "}"):
+    v = v.lstrip("{")
+    v = v.rstrip("}")
+    v_array = v.split("|")
+    v_array = [i.replace('*', '').strip() for i in v_array]
+    return v_array
+  return [v]
 
 
 def test():
-    data = process_file(DATAFILE, FIELDS)
+  data = process_file(DATAFILE, FIELDS)
 
-    pprint.pprint(data[0])
-    assert data[0] == {
-                        "synonym": None, 
-                        "name": "Argiope", 
-                        "classification": {
-                            "kingdom": "Animal", 
-                            "family": "Orb-weaver spider", 
-                            "order": "Spider", 
-                            "phylum": "Arthropod", 
-                            "genus": None, 
-                            "class": "Arachnid"
-                        }, 
-                        "uri": "http://dbpedia.org/resource/Argiope_(spider)", 
-                        "label": "Argiope", 
-                        "description": "The genus Argiope includes rather large and spectacular spiders that often have a strikingly coloured abdomen. These spiders are distributed throughout the world. Most countries in tropical or temperate climates host one or more species that are similar in appearance. The etymology of the name is from a Greek name meaning silver-faced."
-                    }
+  pprint.pprint(data[0])
+  assert data[0] == {
+      "synonym": None,
+      "name": "Argiope",
+      "classification": {
+          "kingdom": "Animal",
+          "family": "Orb-weaver spider",
+          "order": "Spider",
+          "phylum": "Arthropod",
+          "genus": None,
+          "class": "Arachnid"
+      },
+      "uri": "http://dbpedia.org/resource/Argiope_(spider)",
+      "label": "Argiope",
+      "description": "The genus Argiope includes rather large and spectacular spiders that often have a strikingly coloured abdomen. These spiders are distributed throughout the world. Most countries in tropical or temperate climates host one or more species that are similar in appearance. The etymology of the name is from a Greek name meaning silver-faced."
+  }
 
 
 if __name__ == "__main__":
-    test()
+  test()
