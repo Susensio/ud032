@@ -2,7 +2,8 @@ from autos import process_file
 
 
 def insert_autos(infile, db):
-    autos = process_file(infile)
+    data = process_file(infile)
+    db.autos.insert(data)
 
     # Your code here. Insert the data in one command
     # autos will be a list of dictionaries, as in the example in the previous video
