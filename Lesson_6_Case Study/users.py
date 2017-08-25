@@ -11,6 +11,9 @@ have contributed to the map in this particular area!
 The function process_map should return a set of unique user IDs ("uid")
 """
 
+OSMFILE = "example.osm"
+ZGZFILE = "C:\data\zaragoza_xml.osm"
+
 
 def get_user(element):
     return element.attrib['uid']
@@ -27,9 +30,9 @@ def process_map(filename):
 
 def test():
 
-    users = process_map('example.osm')
-    pprint.pprint(users)
-    assert len(users) == 4
+    users = process_map(ZGZFILE)
+    pprint.pprint(len(users))
+    # assert len(users) == 4
 
 
 if __name__ == "__main__":
