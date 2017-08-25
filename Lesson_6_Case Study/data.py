@@ -37,12 +37,12 @@ You have to complete the function 'shape_element'.
 We have provided a function that will parse the map file, and call the function with the element
 as an argument. You should return a dictionary, containing the shaped data for that element.
 We have also provided a way to save the data in a file, so that you could use
-mongoimport later on to import the shaped data into MongoDB. 
+mongoimport later on to import the shaped data into MongoDB.
 
 Note that in this exercise we do not use the 'update street name' procedures
 you worked on in the previous exercise. If you are using this code in your final
-project, you are strongly encouraged to use the code from previous exercise to 
-update the street names before you save them to JSON. 
+project, you are strongly encouraged to use the code from previous exercise to
+update the street names before you save them to JSON.
 
 In particular the following things should be done:
 - you should process only 2 types of top level tags: "node" and "way"
@@ -50,7 +50,7 @@ In particular the following things should be done:
     - attributes in the CREATED array should be added under a key "created"
     - attributes for latitude and longitude should be added to a "pos" array,
       for use in geospacial indexing. Make sure the values inside "pos" array are floats
-      and not strings. 
+      and not strings.
 - if the second level tag "k" value contains problematic characters, it should be ignored
 - if the second level tag "k" value starts with "addr:", it should be added to a dictionary "address"
 - if the second level tag "k" value does not start with "addr:", but contains ":", you can
@@ -141,10 +141,10 @@ def process_map(file_in, pretty=False):
             el = shape_element(element)
             if el:
                 data.append(el)
-            #   if pretty:
-            #     fo.write(json.dumps(el, indent=2) + "\n")
-            #   else:
-            #     fo.write(json.dumps(el) + "\n")
+                if pretty:
+                    fo.write(json.dumps(el, indent=2) + "\n")
+                else:
+                    fo.write(json.dumps(el) + "\n")
     return data
 
 
