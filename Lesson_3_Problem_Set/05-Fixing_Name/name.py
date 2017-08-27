@@ -22,9 +22,10 @@ CITIES = 'cities.csv'
 
 
 def fix_name(name):
-
-    # YOUR CODE HERE
-
+    if name == "NULL" or name == "":
+        name = []
+    else:
+        name = name.strip("{}").split("|")
     return name
 
 
@@ -51,9 +52,9 @@ def test():
     for n in range(20):
         pprint.pprint(data[n]["name"])
 
-    # assert data[14]["name"] == ['Negtemiut', 'Nightmute']
-    # assert data[9]["name"] == ['Pell City Alabama']
-    # assert data[3]["name"] == ['Kumhari']
+    assert data[14]["name"] == ['Negtemiut', 'Nightmute']
+    assert data[9]["name"] == ['Pell City Alabama']
+    assert data[3]["name"] == ['Kumhari']
 
 if __name__ == "__main__":
     test()

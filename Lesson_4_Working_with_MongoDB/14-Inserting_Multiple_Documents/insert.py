@@ -2,8 +2,8 @@ from autos import process_file
 
 
 def insert_autos(infile, db):
-    data = process_file(infile)
-    db.autos.insert(data)
+    autos = process_file(infile)
+    db.autos.insert(autos)
 
     # Your code here. Insert the data in one command
     # autos will be a list of dictionaries, as in the example in the previous video
@@ -17,5 +17,6 @@ if __name__ == "__main__":
     client = MongoClient("mongodb://localhost:27017")
     db = client.examples
 
+    # insert_autos('C:/data/autos.csv', db)
     insert_autos('autos-small.csv', db)
     print db.autos.find_one()

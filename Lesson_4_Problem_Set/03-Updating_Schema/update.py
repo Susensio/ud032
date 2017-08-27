@@ -43,8 +43,8 @@ import json
 import pprint
 
 DATAFILE = 'arachnid.csv'
-FIELDS ={'rdf-schema#label': 'label',
-         'binomialAuthority_label': 'binomialAuthority'}
+FIELDS = {'rdf-schema#label': 'label',
+          'binomialAuthority_label': 'binomialAuthority'}
 
 
 def add_field(filename, fields):
@@ -55,14 +55,41 @@ def add_field(filename, fields):
         reader = csv.DictReader(f)
         for i in range(3):
             l = reader.next()
-        # YOUR CODE HERE
 
+        for line in reader:
+            spider = {}
+            for field, val in line.iteritems():
+                if field not in process_fields:
+                    continue
+                if empty_val(val):
+                    val = None
+                else:
+                    val = val.strip()
+                if field == 'rdf-schema#label':
+                    val = trim_parenthesis(val)
+                spider[FIELDS[field]] = val
+            if spider['binomialAuthority'] is not None:
+                data[spider['label']] = spider['binomialAuthority']
     return data
 
 
 def update_db(data, db):
-    # YOUR CODE HERE
-    pass
+    for key, value in data.iteritems():
+        spider = db.arachnid.find_one({'label': key})
+        spider['classification']['binomialAuthority'] = value
+
+        db.arachnid.save(spider)
+
+
+def empty_val(val):
+    val = val.strip()
+    return (val == "NULL") or (val == "")
+
+
+def trim_parenthesis(text):
+    if '(' in text:
+        text = text.split('(')[0].strip()
+    return text
 
 
 def test():
@@ -70,7 +97,7 @@ def test():
     # Changes done to this function will not be taken into account
     # when doing a Test Run or Submit, they are just for your own reference
     # and as an example for running this code locally!
-    
+
     data = add_field(DATAFILE, FIELDS)
     from pymongo import MongoClient
     client = MongoClient("mongodb://localhost:27017")
@@ -81,7 +108,6 @@ def test():
     updated = db.arachnid.find_one({'label': 'Opisthoncana'})
     assert updated['classification']['binomialAuthority'] == 'Embrik Strand'
     pprint.pprint(data)
-
 
 
 if __name__ == "__main__":
