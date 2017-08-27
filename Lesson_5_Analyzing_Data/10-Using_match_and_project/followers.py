@@ -29,6 +29,8 @@ Please note that the dataset you are using here is a smaller version of the twit
 in examples in this lesson. If you attempt some of the same queries that we looked at in the lesson 
 examples, your results will be different.
 """
+from pprint import pprint
+
 
 def get_db(db_name):
     from pymongo import MongoClient
@@ -36,20 +38,28 @@ def get_db(db_name):
     db = client[db_name]
     return db
 
+
 def make_pipeline():
     # complete the aggregation pipeline
-    pipeline = [ ]
+    pipeline = [{"$match": {"user.time_zone": "Brasilia", "user.statuses_count": {"$gte": 100}}},
+                {"$project": {"screen_name": "$user.screen_name", "followers": "$user.followers_count", "tweets": "$user.statuses_count"}},
+                {"$sort": {"followers": -1}},
+                {"$limit": 1}]
     return pipeline
+
 
 def aggregate(db, pipeline):
     result = db.tweets.aggregate(pipeline)
     return result
 
+
 if __name__ == '__main__':
     db = get_db('twitter')
     pipeline = make_pipeline()
     result = aggregate(db, pipeline)
-    assert len(result["result"]) == 1
-    assert result["result"][0]["followers"] == 17209
-    import pprint
-    pprint.pprint(result)
+    result = [r for r in result]
+
+    assert len(result) == 1
+    assert result[0]["followers"] == 259760
+
+    pprint(result)

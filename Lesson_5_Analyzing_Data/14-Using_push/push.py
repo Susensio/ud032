@@ -25,26 +25,33 @@ examples in this lesson. If you attempt some of the same queries that we looked 
 examples, your results will be different.
 """
 
+
 def get_db(db_name):
     from pymongo import MongoClient
     client = MongoClient('localhost:27017')
     db = client[db_name]
     return db
 
+
 def make_pipeline():
     # complete the aggregation pipeline
-    pipeline = [ ]
+    pipeline = [{"$group": {"_id": "$user.screen_name", "count": {"$sum": 1}, "tweet_texts": {"$push": "$text"}}},
+                {"$sort": {"count": -1}},
+                {"$limit": 5}]
     return pipeline
+
 
 def aggregate(db, pipeline):
     result = db.tweets.aggregate(pipeline)
     return result
 
+
 if __name__ == '__main__':
     db = get_db('twitter')
     pipeline = make_pipeline()
     result = aggregate(db, pipeline)
-    assert len(result["result"]) == 5
-    assert result["result"][0]["count"] > result["result"][4]["count"]
+    result = [r for r in result]
+    assert len(result) == 5
+    assert result[0]["count"] > result[4]["count"]
     import pprint
     pprint.pprint(result)
